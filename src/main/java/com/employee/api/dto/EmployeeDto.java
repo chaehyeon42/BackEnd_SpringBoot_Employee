@@ -1,13 +1,13 @@
 package com.employee.api.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
-//@AllArgsConstructor
+@AllArgsConstructor
+@Builder // Builder 사용을 위해 전체 생성자 필요
+//기존의 복잡한 생성자들을 모두 제거하거나 private으로 숨기고, 하나로 통합할 수 있음.
 public class EmployeeDto {
     private Long id;
     private String firstName;
@@ -17,22 +17,4 @@ public class EmployeeDto {
 
     private DepartmentDto departmentDto;
 
-    public EmployeeDto(Long id,String firstName,String lastName, String email) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
-
-
-    public EmployeeDto(Long id,String firstName,String lastName, String email, Long departmentId) {
-        this(id,firstName,lastName,email);
-        this.departmentId = departmentId;
-    }
-
-
-    public EmployeeDto(Long id,String firstName,String lastName, String email, DepartmentDto departmentDto) {
-        this(id,firstName,lastName,email);
-        this.departmentDto = departmentDto;
-    }
 }
