@@ -13,7 +13,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "departments")
 
-//H2 db에 Department테이블 추가
+//H2 db에 Department테이블(부서 테이블) 추가
 public class Department {
 
     @Id
