@@ -28,6 +28,9 @@ public class Employee {
     private String email;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    //FetchType에 LAZY가 있고 EAGER가 있음.
+    //LAZY는 Employee 엔티티에서 getDepartment()호출할 때 fetch되어짐. 즉, 필요할 때만 창고에서 꺼내온다
+    //EAGER Employee정보에서 무조건 한번에 다 가져옴
+    @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 }
