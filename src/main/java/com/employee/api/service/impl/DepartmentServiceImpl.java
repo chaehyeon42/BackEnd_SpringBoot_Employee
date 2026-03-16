@@ -2,7 +2,6 @@ package com.employee.api.service.impl;
 
 import com.employee.api.dto.DepartmentDto;
 import com.employee.api.entity.Department;
-import com.employee.api.exception.ResourceNotFoundException;
 import com.employee.api.mapper.DepartmentMapper;
 import com.employee.api.repository.DepartmentRepository;
 import com.employee.api.service.DepartmentService;
@@ -12,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.employee.api.service.common.CommonService.getNotFoundException;
 
 @Service
 @Transactional
@@ -47,14 +48,6 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .orElseThrow(() -> getNotFoundException("Department is not exists with a given id: ", departmentId));
     }
 
-    //public <X extends Throwable> T orElseT    hrow(Supplier<? extends X> exceptionSupplier)
-    //Supplier 추상메서드 T get()
-    private static ResourceNotFoundException getNotFoundException(String msg,
-                                                                  Long departmentId) {
-        return new ResourceNotFoundException(
-                msg + departmentId,
-                HttpStatus.NOT_FOUND);
-    }
 
 
     @Transactional(readOnly = true)
