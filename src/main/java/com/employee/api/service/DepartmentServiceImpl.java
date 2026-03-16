@@ -89,6 +89,12 @@ public class DepartmentServiceImpl implements DepartmentService{
 
     @Override
     public void deleteDepartment(Long departmentId) {
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() ->
+                        getNotFoundException("Department is not exists with a given id:", departmentId)
+                ); //ID로 조회
+            //삭제처리(Entity로 삭제)
+            departmentRepository.delete(department);
 
     }
 }
