@@ -109,10 +109,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteEmployee(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(
-                        getNotFoundExceptionSupplier(
-                                "Employee is not exists with given id : ",
-                                employeeId)
+                        getNotFoundExceptionSupplier("Employee is not exists with given id : ", employeeId)
                 );
         employeeRepository.delete(employee);
+    }
+
+    @Override
+    public EmployeeDto getEmployeeByEmail(String email) {
+        return employeeRepository.findByEmail(email)
+                //.map(entity -> EmployeeMapper.mapToEmployeeDepartmentDto(entity))
+                .map(EmployeeMapper::mapToEmployeeDepartmentDto)
+                .orElseThrow(
+                        getNotFoundExceptionSupplier("Employee is not exists with given email : ", email)
+                );
     }
 }

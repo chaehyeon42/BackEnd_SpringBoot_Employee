@@ -1,6 +1,7 @@
 package com.employee.api.service;
 
 import com.employee.api.dto.EmployeeDto;
+import com.employee.api.mapper.EmployeeMapper;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface EmployeeService {
     EmployeeDto updateEmployee(Long employeeId, EmployeeDto updatedEmployee);
 
     void deleteEmployee(Long employeeId);
+
+    EmployeeDto getEmployeeByEmail(String email);
 }
