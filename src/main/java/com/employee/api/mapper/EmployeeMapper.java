@@ -11,6 +11,7 @@ public class EmployeeMapper {
      * 직원의 기본 정보와 '부서 ID'만 담아서 보낼 때 사용합니다.
      * 주로 리스트 조회처럼 부서의 상세 내용까지는 필요 없을 때 효율적입니다.
      */
+    //Entity -> DTO(Employee (Deployee id포함))
     public static EmployeeDto mapToEmployeeDto(Employee employee){
         return EmployeeDto.builder() // 빌더 패턴 시작
                 .id(employee.getId())

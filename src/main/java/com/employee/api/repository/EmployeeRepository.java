@@ -3,6 +3,7 @@ package com.employee.api.repository;
 import com.employee.api.entity.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     // 1. 이메일로 직원 찾기 (unique 제약조건 대응)
     /*Optional 사용: findByEmail이나 findByDepartmentName처럼 결과가 없거나 하나일 것이 확실한 경우
     Optional<T>을 반환하여 NullPointerException을 방어하는 것이 최신 관례*/
-    Optional<Employee> findByEmail(String email);
+    @Query("SELECT e FROM Employee e.email =  :email")
+    Optional<Employee> findByEmail(@Param("eamil") String email);
 
     // 2. 성(lastName)이 일치하는 모든 직원 찾기
     List<Employee> findByLastName(String lastName);
