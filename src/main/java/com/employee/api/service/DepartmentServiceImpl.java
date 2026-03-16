@@ -43,9 +43,16 @@ public class DepartmentServiceImpl implements DepartmentService{
                 //             클래스명::메소드명 형식을 사용
                 .map(DepartmentMapper::mapToDepartmentDto) // Optional<DepartmentDto>
                 //.orElseThrow 값이 없으면 에러 있으면 T인 DepartmentDto를 내뱉어줌
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Department is not exists with a given id: " + departmentId,
-                        HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> getNotFoundException("Department is not exists with a given id: ", departmentId));
+    }
+
+    //public <X extends Throwable> T orElseT    hrow(Supplier<? extends X> exceptionSupplier)
+    //Supplier 추상메서드 T get()
+    private static ResourceNotFoundException getNotFoundException(String msg,
+                                                                  Long departmentId) {
+        return new ResourceNotFoundException(
+                msg + departmentId,
+                HttpStatus.NOT_FOUND);
     }
 
 
@@ -65,7 +72,19 @@ public class DepartmentServiceImpl implements DepartmentService{
 
     @Override
     public DepartmentDto updateDepartment(Long departmentId, DepartmentDto updatedDepartment) {
-        return null;
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() ->
+                        getNotFoundException("Department is not exists with a given id:", departmentId)
+                );
+
+        //setter 호출
+        department.setDepartmentName(updatedDepartment.getDepartmentName());
+        department.setDepartmentDescription(updatedDepartment.getDepartmentDescription());
+
+        //Department savedDepartment = departmentRepository.save(department);
+
+        //Entity를 DTO로 변환
+        return DepartmentMapper.mapToDepartmentDto(department);
     }
 
     @Override
