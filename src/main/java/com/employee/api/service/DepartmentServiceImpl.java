@@ -52,7 +52,15 @@ public class DepartmentServiceImpl implements DepartmentService{
     @Transactional(readOnly = true)
     @Override
     public List<DepartmentDto> getAllDepartments() {
-        return List.of();
+        List<Department> departments = departmentRepository.findAll(); //findAll()-> 전체 목록 가져옴
+        // List<Department> 를 Stream<Department>로 변경
+        return departments.stream() //Stream<Department>
+                //1. 람다식
+                //.map(department -> DepartmentMapper.mapToDepartmentDto(department)) //Stream<DepartmentDTO>로 변경
+                //2. 클래스명::메소드명 형식
+                .map(DepartmentMapper::mapToDepartmentDto) //Stream<DepartmentDTO>로 변경
+                //Stream<DepartmentDTO> 를 List<DepartmentDto>로 변경
+                .toList();
     }
 
     @Override
