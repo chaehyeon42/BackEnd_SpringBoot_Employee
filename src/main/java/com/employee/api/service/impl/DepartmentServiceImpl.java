@@ -2,6 +2,7 @@ package com.employee.api.service.impl;
 
 import com.employee.api.dto.DepartmentDto;
 import com.employee.api.entity.Department;
+import com.employee.api.exception.ResourceNotFoundException;
 import com.employee.api.mapper.DepartmentMapper;
 import com.employee.api.repository.DepartmentRepository;
 import com.employee.api.service.DepartmentService;
@@ -11,8 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Supplier;
 
-import static com.employee.api.service.common.CommonService.getNotFoundException;
+import static com.employee.api.service.common.CommonService.getNotFoundExceptionSupplier;
 
 @Service
 @Transactional
@@ -45,7 +47,9 @@ public class DepartmentServiceImpl implements DepartmentService {
                 //             클래스명::메소드명 형식을 사용
                 .map(DepartmentMapper::mapToDepartmentDto) // Optional<DepartmentDto>
                 //.orElseThrow 값이 없으면 에러 있으면 T인 DepartmentDto를 내뱉어줌
-                .orElseThrow(() -> getNotFoundException("Department is not exists with a given id: ", departmentId));
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with a given id: ", departmentId)
+                );
     }
 
 
@@ -67,8 +71,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public DepartmentDto updateDepartment(Long departmentId, DepartmentDto updatedDepartment) {
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() ->
-                        getNotFoundException("Department is not exists with a given id:", departmentId)
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with a given id:", departmentId)
                 );
 
         //setter 호출
@@ -84,8 +88,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public void deleteDepartment(Long departmentId) {
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() ->
-                        getNotFoundException("Department is not exists with a given id:", departmentId)
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with a given id:", departmentId)
                 ); //ID로 조회
             //삭제처리(Entity로 삭제)
             departmentRepository.delete(department);

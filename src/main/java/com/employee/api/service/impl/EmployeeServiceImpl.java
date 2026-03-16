@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.employee.api.service.common.CommonService.getNotFoundExceptionSupplier;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -29,11 +31,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //Department(부서정보) 존재여부 를 DepartmentId로 조회
         Department department = departmentRepository.findById(employeeDto.getDepartmentId())
-                .orElseThrow(() ->
-                        //요청하는 부서 없으면 NOT_FOUND로 끝내버림
-                        new ResourceNotFoundException("Department is not exists with id: " +
-                                employeeDto.getDepartmentId(),
-                                HttpStatus.NOT_FOUND));
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with id: ",
+                        employeeDto.getDepartmentId())
+                );
 
         //Employee와 Department 연결
         employee.setDepartment(department);
@@ -44,19 +45,36 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public EmployeeDto getEmployeeById(Long employeeId) {
-        return null;
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(
+                        getNotFoundExceptionSupplier(
+                                "Employee is not exists with given id : ",
+                                employeeId))
+                ;
+
+        return EmployeeMapper.mapToEmployeeDto(employee);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EmployeeDto> getAllEmployees() {
-        return List.of();
+        List<Employee> employees = employeeRepository.findAll();
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeDto)
+                .toList();
+        //.map((employee) -> EmployeeMapper.mapToEmployeeDto(employee))
+        //.collect(Collectors.toList());
     }
 
     @Override
     public List<EmployeeDto> getAllEmployeesDepartment() {
-        return List.of();
+        List<Employee> employees = employeeRepository.findAllWithDepartment();
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeDto)
+                .toList();
     }
 
     @Override
