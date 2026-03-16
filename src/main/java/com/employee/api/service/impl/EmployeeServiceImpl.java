@@ -79,28 +79,28 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDto updateEmployee(Long employeeId, EmployeeDto updatedEmployee) {
+        //해당 ID로 Employee 조회
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Employee is not exists with given id: " + employeeId,
-                                HttpStatus.NOT_FOUND)
+                .orElseThrow(
+                        getNotFoundExceptionSupplier(
+                                "Employee is not exists with given id : ",
+                                employeeId)
                 );
 
+        //Setter 호출로 값을 변경
         employee.setFirstName(updatedEmployee.getFirstName());
         employee.setLastName(updatedEmployee.getLastName());
         employee.setEmail(updatedEmployee.getEmail());
 
+        //updateEmployee에 들어있는 부서 ID 로 업데이트
         Department department = departmentRepository.findById(updatedEmployee.getDepartmentId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Department is not exists with id: " + updatedEmployee.getDepartmentId(),
-                                HttpStatus.NOT_FOUND
-                        ));
-
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with a given id: ", updatedEmployee.getDepartmentId())
+                );
+        //Employee와 Department를 연결
         employee.setDepartment(department);
-
+                                    //employee를 DB에 반영
         Employee updatedEmployeeObj = employeeRepository.save(employee);
-
         return EmployeeMapper.mapToEmployeeDto(updatedEmployeeObj);
     }
 
