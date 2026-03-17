@@ -81,7 +81,6 @@ public class DefaultExceptionAdvice {
                     String errorMessage = error.getDefaultMessage();
                     errors.put(fieldName, errorMessage);
                 });
-
         ValidationErrorResponse response =
                 new ValidationErrorResponse(
                         400,

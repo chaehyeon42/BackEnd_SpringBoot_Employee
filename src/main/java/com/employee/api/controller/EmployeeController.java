@@ -4,6 +4,7 @@ import com.employee.api.dto.EmployeeDto;
 import com.employee.api.entity.Employee;
 import com.employee.api.repository.EmployeeRepository;
 import com.employee.api.service.EmployeeService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -73,7 +74,6 @@ public class EmployeeController {
         return ResponseEntity.ok("Employee deleted successfully!.");
     }
 
-    //email
     @GetMapping("/email/{email}")
     public ResponseEntity<EmployeeDto> getEmployeeByEmail(@PathVariable String email){
         EmployeeDto employeeDto = employeeService.getEmployeeByEmail(email);
