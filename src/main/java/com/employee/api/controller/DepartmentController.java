@@ -2,6 +2,7 @@ package com.employee.api.controller;
 
 import com.employee.api.dto.DepartmentDto;
 import com.employee.api.service.DepartmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class DepartmentController {
     // Build Create or Add Department REST API
     // 하위구현클래스(ServiceImpl)로 바로 실행하는 단축키 : ctrl + alt +b
     @PostMapping
-    public ResponseEntity<DepartmentDto> createDepartment(@RequestBody DepartmentDto departmentDto){
+    public ResponseEntity<DepartmentDto> createDepartment(@Valid @RequestBody DepartmentDto departmentDto){
         DepartmentDto department = departmentService.createDepartment(departmentDto);
         return new ResponseEntity<>(department, HttpStatus.CREATED);
     }
@@ -43,7 +44,7 @@ public class DepartmentController {
     //수정
     @PutMapping("/{id}")
     public ResponseEntity<DepartmentDto> updateDepartment(@PathVariable("id") Long departmentId,
-                                                          @RequestBody DepartmentDto updatedDepartment){
+                                                          @Valid @RequestBody DepartmentDto updatedDepartment){
         DepartmentDto departmentDto = departmentService.updateDepartment(departmentId, updatedDepartment);
         return ResponseEntity.ok(departmentDto);
     }
