@@ -1,6 +1,7 @@
 package com.employee.api.service.impl;
 
 import com.employee.api.dto.EmployeeDto;
+import com.employee.api.dto.PageResponse;
 import com.employee.api.entity.Department;
 import com.employee.api.entity.Employee;
 import com.employee.api.exception.ResourceNotFoundException;
@@ -9,6 +10,10 @@ import com.employee.api.repository.DepartmentRepository;
 import com.employee.api.repository.EmployeeRepository;
 import com.employee.api.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,23 +31,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
-        //입력 받은 DTO를 Entity로 변경
+        //입력 받은 DTO => Entity
         Employee employee = EmployeeMapper.mapToEmployee(employeeDto);
-
-        //Department(부서정보) 존재여부 를 DepartmentId로 조회
+        //Department 의 존재여부를 조회
         Department department = departmentRepository.findById(employeeDto.getDepartmentId())
                 .orElseThrow(getNotFoundExceptionSupplier(
                         "Department is not exists with id: ",
                         employeeDto.getDepartmentId())
                 );
-
-        //Employee와 Department 연결
+        //Employee 와 Department 연결
         employee.setDepartment(department);
         //Employee 등록
         Employee savedEmployee = employeeRepository.save(employee);
-        //DB에 등록된 Entity를 DTO로 변경
+        //DB에 등록된 Entity => DTO
         return EmployeeMapper.mapToEmployeeDto(savedEmployee);
-
     }
 
     @Transactional(readOnly = true)
@@ -52,8 +54,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(
                         getNotFoundExceptionSupplier(
                                 "Employee is not exists with given id : ",
-                                employeeId))
-                ;
+                                employeeId)
+                );
 
         return EmployeeMapper.mapToEmployeeDto(employee);
     }
@@ -63,48 +65,70 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeDto> getAllEmployees() {
         List<Employee> employees = employeeRepository.findAll();
         return employees.stream()
-                .map(EmployeeMapper::mapToEmployeeDto)
+                .map(EmployeeMapper::mapToEmployeeDto)  //Employee 정보만 변환
+                //.map(EmployeeMapper::mapToEmployeeDepartmentDto)//Employee 와 Department 둘다 변환
                 .toList();
         //.map((employee) -> EmployeeMapper.mapToEmployeeDto(employee))
         //.collect(Collectors.toList());
     }
 
     @Override
+    public PageResponse<EmployeeDto> getEmployeesPage(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Employee> page = employeeRepository.findAll(pageable);
+
+        List<EmployeeDto> content = page.getContent()
+                .stream()
+                .map(EmployeeMapper::mapToEmployeeDto)
+                .toList();
+
+        return new PageResponse<>(
+                content,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
+    }
+
+    @Override
     public List<EmployeeDto> getAllEmployeesDepartment() {
+        //join fetch
         List<Employee> employees = employeeRepository.findAllWithDepartment();
         return employees.stream()
                 .map(EmployeeMapper::mapToEmployeeDepartmentDto)
                 .toList();
+
     }
 
     @Override
     public EmployeeDto updateEmployee(Long employeeId, EmployeeDto updatedEmployee) {
-        //해당 ID로 Employee 조회
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(
-                        getNotFoundExceptionSupplier(
-                                "Employee is not exists with given id : ",
-                                employeeId)
+                        getNotFoundExceptionSupplier("Employee is not exists with given id : ", employeeId)
                 );
-
-        //Setter 호출로 값을 변경
+        //setter 호출로 값을 변경
         employee.setFirstName(updatedEmployee.getFirstName());
         employee.setLastName(updatedEmployee.getLastName());
         employee.setEmail(updatedEmployee.getEmail());
 
-        //updateEmployee에 들어있는 부서 ID 로 업데이트
         Department department = departmentRepository.findById(updatedEmployee.getDepartmentId())
-                .orElseThrow(getNotFoundExceptionSupplier(
-                        "Department is not exists with a given id: ", updatedEmployee.getDepartmentId())
+                .orElseThrow(
+                        getNotFoundExceptionSupplier(
+                                "Department is not exists with a given id: ", updatedEmployee.getDepartmentId())
                 );
-        //Employee와 Department를 연결
+        //Employee와 Department 연결
         employee.setDepartment(department);
-                                    //employee를 DB에 반영
+
         Employee updatedEmployeeObj = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeDto(updatedEmployeeObj);
     }
 
-    //삭제 부분
     @Override
     public void deleteEmployee(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
